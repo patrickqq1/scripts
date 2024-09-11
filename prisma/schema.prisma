@@ -21,11 +21,57 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
   name      String
-  email     String   @unique
+  email     String      @unique
   password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Role        @default(USER)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Script    Script[]
+  Execution Execution[]
+}
+
+model Script {
+  id        String      @id @default(cuid())
+  name      String
+  isActive  Boolean     @default(false)
+  executeAt String
+  user      User        @relation(fields: [userId], references: [id])
+  userId    String
+  isCommand Boolean     @default(false)
+  command   String?
+  isFile    Boolean     @default(false)
+  file      String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Execution Execution[]
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+model Execution {
+  id        String          @id @default(cuid())
+  script    Script          @relation(fields: [scriptId], references: [id])
+  scriptId  String
+  user      User            @relation(fields: [userId], references: [id])
+  userId    String
+  logs      Log[]
+  status    ExecutionStatus
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model Log {
+  id          String    @id @default(cuid())
+  execution   Execution @relation(fields: [executionId], references: [id])
+  executionId String
+  log         String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
